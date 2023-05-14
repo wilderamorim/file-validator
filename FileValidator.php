@@ -10,6 +10,7 @@ class FileValidator
 
     private array $allowedExtensions = ['jpg', 'jpeg', 'png', 'gif'];
     private array $allowedTypes = ['image/jpeg', 'image/png', 'image/gif'];
+    private array $units;
     private int $maxSizeInBytes = 0;
     private int $maxTotalSizeInBytes = 0;
 
@@ -19,6 +20,11 @@ class FileValidator
             fn(...$values) => array_combine(array_keys($file), $values),
             ...array_column(array_values($file), null)
         );
+    }
+
+    public function getUnits(): array
+    {
+        return $this->units;
     }
 
     public function setAllowedExtensions(array $extensions): void
@@ -34,12 +40,14 @@ class FileValidator
     public function setMaxSize(int $size, string $unit): void
     {
         $bytes = $this->convertToBytes($size, $unit);
+        $this->units['maxSize'] = compact('size', 'unit', 'bytes');
         $this->maxSizeInBytes = $bytes;
     }
 
     public function setTotalMaxSize(int $size, string $unit): void
     {
         $bytes = $this->convertToBytes($size, $unit);
+        $this->units['totalMaxSize'] = compact('size', 'unit', 'bytes');
         $this->maxTotalSizeInBytes = $bytes;
     }
 
@@ -52,11 +60,8 @@ class FileValidator
 
         $files = $this->getMultipleFiles($file);
         $totalSize = array_sum(array_column($files, 'size'));
-
-        array_walk($files, function ($file) use ($totalSize) {
-            $this->validateSingleFile($file);
-            $this->validateTotalFileSize($totalSize);
-        });
+        $this->validateTotalFileSize($totalSize);
+        array_walk($files, [$this, 'validateSingleFile']);
     }
 
     public function isMultiple(array $file): bool
