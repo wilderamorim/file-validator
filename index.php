@@ -62,7 +62,7 @@ $attributes = [
                             Arquivo(s) validados!
                         </div>
                     <?php elseif (isset($error)): ?>
-                        <div class="alert alert-warning" role="alert">
+                        <div class="alert alert-danger" role="alert">
                             <?= $error; ?>
                         </div>
                     <?php endif; ?>

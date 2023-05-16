@@ -1,10 +1,12 @@
 <?php
 declare(strict_types=1);
 
-function dd($data): void
-{
-    echo sprintf('<pre>%s</pre>', print_r($data, true));
-    die;
+if (!function_exists('dd')) {
+    function dd($data): void
+    {
+        echo sprintf('<pre>%s</pre>', print_r($data, true));
+        die;
+    }
 }
 
 function upload(array $files, string $path): void
