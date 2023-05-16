@@ -5,15 +5,12 @@ error_reporting(E_ALL);
 
 array_map(fn($file) => include_once __DIR__ . '/' . $file, ['helpers.php', 'FileValidator.php',]);
 
-$page = filter_input(INPUT_GET, 'page');
-$isMultiple = $page == 'multiple';
-
-$allowedTypes = ['image/jpeg', 'image/png'];
-$accept = implode(', ', $allowedTypes);
+$tab = filter_input(INPUT_GET, 'tab');
+$isMultiple = $tab == 'multiple';
 
 $validator = new FileValidator();
 $validator->setAllowedExtensions(['jpg', 'jpeg', 'png']);
-$validator->setAllowedTypes($allowedTypes);
+$validator->setAllowedTypes(['image/jpeg', 'image/png']);
 $validator->setMaxSize(1, $validator::UNIT_MB);
 $validator->setTotalMaxSize(10, $validator::UNIT_MB); // only if multiple
 
@@ -38,6 +35,12 @@ if (!empty($_FILES['image'])) {
     }
 
 }
+
+$attributes = [
+    'accept' => implode(', ', $validator->getAllowedTypes()),
+    'onchange' => 'validateFileSize(this);',
+    'data-units' => htmlspecialchars(json_encode($validator->getUnits()), ENT_QUOTES, 'UTF-8'),
+];
 
 ?>
 <!DOCTYPE html>
@@ -65,30 +68,22 @@ if (!empty($_FILES['image'])) {
                     <?php endif; ?>
                     <form method="post" enctype="multipart/form-data">
                         <div class="nav nav-tabs">
-                            <button onclick="window.location.href='?page=single';" class="nav-link <?= !$isMultiple ? 'active' : null; ?>" type="button">
+                            <button onclick="window.location.href='?tab=single';" class="nav-link <?= !$isMultiple ? 'active' : null; ?>" type="button">
                                 Single
                             </button>
-                            <button onclick="window.location.href='?page=multiple';" class="nav-link <?= $isMultiple ? 'active' : null; ?>" type="button">
+                            <button onclick="window.location.href='?tab=multiple';" class="nav-link <?= $isMultiple ? 'active' : null; ?>" type="button">
                                 Multiple
                             </button>
                         </div>
-                        <?php
-                        $attributes = [
-                            'accept' => $accept,
-                            'onchange' => 'validateFileSize(this);',
-                            'data-units' => htmlspecialchars(json_encode($validator->getUnits()), ENT_QUOTES, 'UTF-8'),
-                        ];
-                        $htmlAttributes = implode(' ', array_map(fn($k, $v) => $k . '="' . $v . '"', array_keys($attributes), $attributes));
-                        ?>
                         <?php if ($isMultiple): ?>
                             <div class="form-group">
                                 <label for="image">Multiple</label>
-                                <input name="image[]" <?= $htmlAttributes; ?> type="file" id="image" class="form-control-file" multiple>
+                                <input name="image[]" <?= html_attributes($attributes); ?> type="file" id="image" class="form-control-file" multiple>
                             </div>
                         <?php else: ?>
                             <div class="form-group">
                                 <label for="image">Single</label>
-                                <input name="image" <?= $htmlAttributes; ?> type="file" id="image" class="form-control-file">
+                                <input name="image" <?= html_attributes($attributes); ?> type="file" id="image" class="form-control-file">
                             </div>
                         <?php endif; ?>
                         <button type="submit" class="btn btn-primary btn-block">

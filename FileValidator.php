@@ -32,6 +32,11 @@ class FileValidator
         $this->allowedExtensions = $extensions;
     }
 
+    public function getAllowedTypes(): array
+    {
+        return $this->allowedTypes;
+    }
+
     public function setAllowedTypes(array $types): void
     {
         $this->allowedTypes = $types;

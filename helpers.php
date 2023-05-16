@@ -21,3 +21,8 @@ function upload(array $files, string $path): void
 
     move_uploaded_file($from, $to);
 }
+
+function html_attributes(array $attributes): string
+{
+    return implode(' ', array_map(fn($k, $v) => $k . '="' . $v . '"', array_keys($attributes), $attributes));
+}
