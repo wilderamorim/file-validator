@@ -64,9 +64,10 @@ class FileValidator
         }
 
         $files = $this->getMultipleFiles($file);
+        array_walk($files, [$this, 'validateSingleFile']);
+
         $totalSize = array_sum(array_column($files, 'size'));
         $this->validateTotalFileSize($totalSize);
-        array_walk($files, [$this, 'validateSingleFile']);
     }
 
     public function isMultiple(array $file): bool
